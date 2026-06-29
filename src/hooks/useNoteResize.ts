@@ -35,10 +35,16 @@ export function useNoteResize(note: Note) {
     }
     const nextWidth = start.width + (e.clientX - start.pointerX)
     const nextHeight = start.height + (e.clientY - start.pointerY)
+
+    // Clamp so the note can't grow past the board's right/bottom edges.
+    // It grows from its top-left corner (note.coordinates).
+    const board = e.currentTarget.parentElement?.offsetParent
+    const maxWidth = board ? board.clientWidth - note.coordinates.x : Infinity
+    const maxHeight = board ? board.clientHeight - note.coordinates.y : Infinity
     resizeNote(
       note.id,
-      Math.max(MIN_NOTE_SIZE, nextWidth),
-      Math.max(MIN_NOTE_SIZE, nextHeight),
+      Math.max(MIN_NOTE_SIZE, Math.min(nextWidth, maxWidth)),
+      Math.max(MIN_NOTE_SIZE, Math.min(nextHeight, maxHeight)),
     )
   }
 

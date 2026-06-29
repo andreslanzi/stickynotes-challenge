@@ -22,6 +22,8 @@ export function useBoardGestures() {
     startY: number
     boardLeft: number
     boardTop: number
+    boardWidth: number
+    boardHeight: number
     moved: boolean
   } | null>(null)
 
@@ -42,6 +44,8 @@ export function useBoardGestures() {
       startY: e.clientY - board.top,
       boardLeft: board.left,
       boardTop: board.top,
+      boardWidth: board.width,
+      boardHeight: board.height,
       moved: false,
     }
   }
@@ -51,8 +55,9 @@ export function useBoardGestures() {
     if (!drag) {
       return
     }
-    const currentX = e.clientX - drag.boardLeft
-    const currentY = e.clientY - drag.boardTop
+    // Clamp the pointer to the board so the new note stays fully inside it.
+    const currentX = Math.min(Math.max(0, e.clientX - drag.boardLeft), drag.boardWidth)
+    const currentY = Math.min(Math.max(0, e.clientY - drag.boardTop), drag.boardHeight)
     const width = Math.abs(currentX - drag.startX)
     const height = Math.abs(currentY - drag.startY)
 
@@ -79,9 +84,16 @@ export function useBoardGestures() {
     e.currentTarget.releasePointerCapture(e.pointerId)
 
     if (drag.moved) {
-      // Drag → create with the dragged size (clamped to the minimum).
-      const currentX = e.clientX - drag.boardLeft
-      const currentY = e.clientY - drag.boardTop
+      // Drag → create with the dragged size, clamping the pointer to the board
+      // (same as the draft) so the note is never created outside it.
+      const currentX = Math.min(
+        Math.max(0, e.clientX - drag.boardLeft),
+        drag.boardWidth,
+      )
+      const currentY = Math.min(
+        Math.max(0, e.clientY - drag.boardTop),
+        drag.boardHeight,
+      )
       createNote(
         {
           x: Math.min(drag.startX, currentX),
