@@ -4,6 +4,9 @@ import { NotesContext } from './NotesContext'
 import { COLORS } from '../../constants'
 
 const STORAGE_KEY = 'sticky-notes'
+// Wait for changes to settle before writing, so rapid drag/resize updates
+// collapse into a single write instead of one per pointermove.
+const PERSIST_DEBOUNCE_MS = 400
 
 // Read the persisted notes, falling back to an empty board if storage is unavailable or holds corrupt data.
 function loadNotes(): Note[] {
@@ -19,13 +22,17 @@ export function NotesProvider({ children }: { children: ReactNode }) {
   const [notes, setNotes] = useState<Note[]>(loadNotes)
   const [selectedColor, setSelectedColor] = useState<string>(COLORS[0])
 
-  // Persist on every change so notes survive a refresh.
+  // Persist after changes settle (debounced) so a drag/resize writes once when
+  // movement stops, not on every pointermove.
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(notes))
-    } catch {
-      // Ignore (e.g. storage disabled or quota exceeded).
-    }
+    const timeoutId = setTimeout(() => {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(notes))
+      } catch {
+        // Ignore (e.g. storage disabled or quota exceeded).
+      }
+    }, PERSIST_DEBOUNCE_MS)
+    return () => clearTimeout(timeoutId)
   }, [notes])
 
   const createNote = (
