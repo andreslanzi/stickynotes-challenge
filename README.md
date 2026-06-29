@@ -30,7 +30,7 @@ Built with React 19, TypeScript, Vite, and Tailwind CSS v4.
 
 ```bash
 # 1. Clone the repository
-git clone (https://github.com/andreslanzi/stickynotes-challenge)
+git clone https://github.com/andreslanzi/stickynotes-challenge
 cd react-app
 
 # 2. Install dependencies
