@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'react'
+import { createContext, useContext, type RefObject } from 'react'
 import type { Note } from './types'
 
 export type NotesContextValue = {
@@ -15,6 +15,9 @@ export type NotesContextValue = {
   resizeNote: (id: string, width: number, height: number) => void
   moveNote: (id: string, x: number, y: number) => void
   bringToFront: (id: string) => void
+  // Focusable landmark (see Board's root) so keyboard/screen-reader focus has
+  // somewhere stable to land on, e.g. after the focused note is deleted.
+  boardRef: RefObject<HTMLDivElement | null>
 }
 
 export const NotesContext = createContext<NotesContextValue | null>(null)

@@ -4,12 +4,17 @@ import { useBoardGestures } from '../../hooks/useBoardGestures'
 import ColorsBar from '../ColorsBar'
 
 function Board() {
-  const { notes, selectedColor } = useNotes()
+  const { notes, selectedColor, boardRef } = useNotes()
   const { draft, boardProps } = useBoardGestures()
 
   return (
     <div
-      className="relative flex-1 overflow-hidden py-8"
+      ref={boardRef}
+      // Not in the normal tab order (-1); it's a landmark other code can
+      // send focus to programmatically, e.g. after a focused note is deleted.
+      tabIndex={-1}
+      aria-label="Notes board"
+      className="relative flex-1 overflow-hidden py-8 outline-none"
       style={{
         background: 'linear-gradient(to right, #E9E4F0, #D3CCE3)',
       }}
